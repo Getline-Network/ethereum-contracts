@@ -103,7 +103,15 @@ library InvestorLedger {
         return account.totalAmountGathered == account.totalLoanNeeded;
     }
 
-    function calculateInterest(Ledger storage account, uint256 investment) constant returns (uint256) {
+    function releaseLoanToBorrower(Ledger storage account) {
+        require(account.loanWidthdrawn == false);
+
+        account.loanWidthdrawn = true;
+
+        require(account.loanToken.transfer(account.liege, account.totalAmountGathered));
+    }
+
+    function calculateInterest(Ledger storage account, uint256 investment) private constant returns (uint256) {
         return investment * account.interestPermil / PERMIL;
     }
 
@@ -126,6 +134,7 @@ library InvestorLedger {
         
         bool loanCancelled;
         bool loanDefaulted;
+        bool loanWidthdrawn;
     }
 
     struct InvestorData {

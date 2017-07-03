@@ -32,10 +32,7 @@ contract Loan {
 
     modifier timedTransitions() {
         if (currentState == State.Fundraising && fundraisingDeadline < block.number) {
-            if (ledger.isFullyFunded())
-                onFundraisingSuccess();
-            else
-                onFundraisingFail();
+            onFundraisingFail();
         } else if (currentState == State.Payback && paybackDeadline < block.number) {
             onPaybackFailure();
         }
@@ -80,6 +77,9 @@ contract Loan {
         ledger.gatherInvestment(msg.sender);
 
         NewInvestment(liege, trustee);
+
+        if (ledger.isFullyFunded())
+            onFundraisingSuccess();
     }
 
     function payback() timedTransitions atState(State.Payback) {
@@ -91,6 +91,10 @@ contract Loan {
 
     function widthrawInvestment() timedTransitions atState(State.Finished) {
         ledger.widthrawInvestment();
+    }
+
+    function withdrawLoan() timedTransitions atState(State.Payback) {
+        ledger.releaseLoanToBorrower();
     }
 
     function onFundraisingSuccess() private {
