@@ -1,8 +1,7 @@
-pragma solidity ^0.4.12;
+pragma solidity ^0.4.11;
 
-import "../tokens/IToken.sol"
-
-// TODO: Safe math
+import "../tokens/IToken.sol";
+import "../common/Math.sol";
 
 library InvestorLedger {
     uint constant PERMIL = 1000;
@@ -12,31 +11,33 @@ library InvestorLedger {
             IToken loanToken,
             address liege,
             uint256 totalLoanNeeded,
-            uint16 interestPermil) returns (Ledger account) {
+            uint16 interestPermil) internal returns (Ledger account) {
         account.collateralToken = collateralToken;
         account.loanToken = loanToken;
+        account.totalLoanNeeded = totalLoanNeeded;
+        account.interestPermil = interestPermil;
 
         account.liege = liege;
 
         return account;
     }
 
-    function gatherCollateral(Ledger storage account)  {
-        var allowance = account.collateralToken.allowance(liege, this);
+    function gatherCollateral(Ledger storage account) {
+        var allowance = account.collateralToken.allowance(account.liege, this);
         account.totalCollateral += allowance;
         require(account.collateralToken.transferFrom(
-            liege,
+            account.liege,
             this,
             allowance));
     }
 
     function gatherInvestment(Ledger storage account, address trustee) {
-        var investmentAmount = min(
+        var investmentAmount = Math.min(
             account.loanToken.allowance(trustee, this),
-            account.totalLoanNeeded - totalAmountGathered
+            account.totalLoanNeeded - account.totalAmountGathered
         );
         var investmentPermil = investmentAmount * PERMIL / account.totalLoanNeeded;
-        var collateralReseverved = investmentPermil * totalCollateral / PERMIL;
+        var collateralReseverved = investmentPermil * account.totalCollateral / PERMIL;
         
         account.totalAmountGathered += investmentAmount;
         account.totalCollateralReserved += collateralReseverved;
@@ -96,10 +97,10 @@ library InvestorLedger {
             require(account.loanToken.transfer(trustee, amountInvested));
         }
 
-        delete investor;
+        delete account.investors[trustee];
     } 
 
-    function isFullyFunded(Ledger storage account) constant returns (bool) {
+    function isFullyFunded(Ledger storage account) constant returns (bool fullyFunded) {
         return account.totalAmountGathered == account.totalLoanNeeded;
     }
 
@@ -111,7 +112,7 @@ library InvestorLedger {
         require(account.loanToken.transfer(account.liege, account.totalAmountGathered));
     }
 
-    function calculateInterest(Ledger storage account, uint256 investment) private constant returns (uint256) {
+    function calculateInterest(Ledger storage account, uint256 investment) private constant returns (uint256 interest) {
         return investment * account.interestPermil / PERMIL;
     }
 

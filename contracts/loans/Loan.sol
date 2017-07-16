@@ -1,8 +1,8 @@
-pragma solidity ^0.4.12;
+pragma solidity ^0.4.11;
 
-import "./IAtestor.sol"
-import "./InvestorLedger.sol"
-import "../tokens/IToken.sol"
+import "./IAtestor.sol";
+import "./InvestorLedger.sol";
+import "../tokens/IToken.sol";
 
 contract Loan {
     // Set only during begining phases and not changed afterwards
@@ -50,7 +50,7 @@ contract Loan {
             uint256 _fundraisingBlocksCount,
             uint256 _paybackBlocksCount
             ) {
-        require(_atestator.isVerified(liege))
+        require(_atestator.isVerified(_liege));
         
         ledger = InvestorLedger.openAccount(
             _collateralToken,
@@ -70,13 +70,13 @@ contract Loan {
         currentState = State.Fundraising;
         fundraisingDeadline = block.number + fundraisingBlocksCount;
 
-        FundraisingBegins(liege);
+        FundraisingBegins(ledger.liege);
     }
 
     function invest() timedTransitions atState(State.Fundraising) {
         ledger.gatherInvestment(msg.sender);
 
-        NewInvestment(liege, trustee);
+        NewInvestment(ledger.liege, msg.sender);
 
         if (ledger.isFullyFunded())
             onFundraisingSuccess();
@@ -90,7 +90,7 @@ contract Loan {
     }
 
     function widthrawInvestment() timedTransitions atState(State.Finished) {
-        ledger.widthrawInvestment();
+        ledger.withdrawInvestment(msg.sender);
     }
 
     function withdrawLoan() timedTransitions atState(State.Payback) {
@@ -101,27 +101,27 @@ contract Loan {
         paybackDeadline = block.number + paybackBlocksCount;
         currentState = State.Payback;
         
-        FundraisingSucessfull(liege);
+        FundraisingSucessfull(ledger.liege);
     }
 
     function onFundraisingFail() private {
         ledger.markCancelled();
         currentState = State.Finished;
 
-        FundraisingFailed(liege);
+        FundraisingFailed(ledger.liege);
     }
 
     function onPaybackSucess() private {
         currentState = State.Finished;
 
-        LoanPaidback(liege);
+        LoanPaidback(ledger.liege);
     }
 
     function onPaybackFailure() private {
         ledger.markDefaulted();
         currentState = State.Finished;
 
-        LoanDefaulted(liege);
+        LoanDefaulted(ledger.liege);
     }
 
     enum State {
