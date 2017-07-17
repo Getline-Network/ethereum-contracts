@@ -4,25 +4,16 @@ pragma solidity ^0.4.11;
 
 import "./IToken.sol";
 
-import "./TokenRecipient.sol";
-
 contract BasicToken is IToken {
-    /* Public variables of the token */
-    string public standard;
     string public name;
     string public symbol;
     uint8 public decimals;
-    uint256 public totalSupply;
+
+    uint256 private totalSupplyField;
 
     /* This creates an array with all balances */
-    mapping (address => uint256) public balanceOf;
-    mapping (address => mapping (address => uint256)) public allowance;
-
-    /* This generates a public event on the blockchain that will notify clients */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /* This notifies clients about the amount burnt */
-    event Burn(address indexed from, uint256 value);
+    mapping (address => uint256) private balanceOfField;
+    mapping (address => mapping (address => uint256)) private allowanceField;
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     function MyToken(
@@ -31,68 +22,53 @@ contract BasicToken is IToken {
         uint8 decimalUnits,
         string tokenSymbol
         ) {
-        balanceOf[msg.sender] = initialSupply;              // Give the creator all initial tokens
-        totalSupply = initialSupply;                        // Update total supply
+        balanceOfField[msg.sender] = initialSupply;              // Give the creator all initial tokens
+        totalSupplyField = initialSupply;                        // Update total supply
         name = tokenName;                                   // Set the name for display purposes
         symbol = tokenSymbol;                               // Set the symbol for display purposes
         decimals = decimalUnits;                            // Amount of decimals for display purposes
     }
 
+    function totalSupply() constant returns (uint256 totalSupply) {
+        return totalSupplyField;
+    }
+
+    function balanceOf(address _owner) constant returns (uint256 balance) {
+        return balanceOfField[_owner];
+    }
+
+    function allowance(address _owner, address _spender) constant returns (uint256 allowance) {
+        return allowanceField[_owner][_spender];
+    }
+
     /* Send coins */
     function transfer(address _to, uint256 _value) returns (bool success) {
         if (_to == 0x0) throw;                               // Prevent transfer to 0x0 address. Use burn() instead
-        if (balanceOf[msg.sender] < _value) throw;           // Check if the sender has enough
-        if (balanceOf[_to] + _value < balanceOf[_to]) throw; // Check for overflows
-        balanceOf[msg.sender] -= _value;                     // Subtract from the sender
-        balanceOf[_to] += _value;                            // Add the same to the recipient
+        if (balanceOfField[msg.sender] < _value) throw;           // Check if the sender has enough
+        if (balanceOfField[_to] + _value < balanceOfField[_to]) throw; // Check for overflows
+        balanceOfField[msg.sender] -= _value;                     // Subtract from the sender
+        balanceOfField[_to] += _value;                            // Add the same to the recipient
         Transfer(msg.sender, _to, _value);                   // Notify anyone listening that this transfer took place
         return true;
     }
 
     /* Allow another contract to spend some tokens in your behalf */
-    function approve(address _spender, uint256 _value)
-        returns (bool success) {
-        allowance[msg.sender][_spender] = _value;
+    function approve(address _spender, uint256 _value) returns (bool success) {
+        allowanceField[msg.sender][_spender] = _value;
+        Approval(msg.sender, _spender, _value);
         return true;
-    }
-
-    /* Approve and then communicate the approved contract in a single tx */
-    function approveAndCall(address _spender, uint256 _value, bytes _extraData)
-        returns (bool success) {
-        TokenRecipient spender = TokenRecipient(_spender);
-        if (approve(_spender, _value)) {
-            spender.receiveApproval(msg.sender, _value, this, _extraData);
-            return true;
-        }
-    }        
+    }      
 
     /* A contract attempts to get the coins */
     function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
         if (_to == 0x0) throw;                                // Prevent transfer to 0x0 address. Use burn() instead
-        if (balanceOf[_from] < _value) throw;                 // Check if the sender has enough
-        if (balanceOf[_to] + _value < balanceOf[_to]) throw;  // Check for overflows
-        if (_value > allowance[_from][msg.sender]) throw;     // Check allowance
-        balanceOf[_from] -= _value;                           // Subtract from the sender
-        balanceOf[_to] += _value;                             // Add the same to the recipient
-        allowance[_from][msg.sender] -= _value;
+        if (balanceOfField[_from] < _value) throw;                 // Check if the sender has enough
+        if (balanceOfField[_to] + _value < balanceOfField[_to]) throw;  // Check for overflows
+        if (_value > allowanceField[_from][msg.sender]) throw;     // Check allowance
+        balanceOfField[_from] -= _value;                           // Subtract from the sender
+        balanceOfField[_to] += _value;                             // Add the same to the recipient
+        allowanceField[_from][msg.sender] -= _value;
         Transfer(_from, _to, _value);
-        return true;
-    }
-
-    function burn(uint256 _value) returns (bool success) {
-        if (balanceOf[msg.sender] < _value) throw;            // Check if the sender has enough
-        balanceOf[msg.sender] -= _value;                      // Subtract from the sender
-        totalSupply -= _value;                                // Updates totalSupply
-        Burn(msg.sender, _value);
-        return true;
-    }
-
-    function burnFrom(address _from, uint256 _value) returns (bool success) {
-        if (balanceOf[_from] < _value) throw;                // Check if the sender has enough
-        if (_value > allowance[_from][msg.sender]) throw;    // Check allowance
-        balanceOf[_from] -= _value;                          // Subtract from the sender
-        totalSupply -= _value;                               // Updates totalSupply
-        Burn(_from, _value);
         return true;
     }
 }

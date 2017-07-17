@@ -5,12 +5,22 @@ var MockAtestor = artifacts.require('./loans/MockAtestor.sol');
 var BasicToken = artifacts.require('./tokens/BasicToken.sol');
 
 module.exports = function(deployer) {
-  var atestor = deployer.deploy(MockAtestor, true);
-  var token = deployer.deploy(BasicToken, 1000000, "Basic", 0, "BAS");
-
-  deployer.deploy(MathContract);
-  deployer.link(MathContract, InvestorLedger);
-
-  deployer.deploy(InvestorLedger);
-  deployer.link(InvestorLedger, Loan);
+  return deployer
+    .deploy(MathContract)
+    .then(() => deployer.link(MathContract, InvestorLedger))
+    .then(() => deployer.deploy(InvestorLedger))
+    .then(() => deployer.link(InvestorLedger, Loan))
+    .then(() => deployer.deploy(MockAtestor, true))
+    .then(() => deployer.deploy(BasicToken, 1000000, "Basic", 0, "BAS"))
+    .then(() => deployer.deploy(
+      Loan,
+      MockAtestor.address,
+      BasicToken.address,
+      BasicToken.address,
+      web3.eth.accounts[0],
+      1000,
+      100,
+      5,
+      5)
+    );
 };
