@@ -1,0 +1,6 @@
+This is a log of deployed contracts on public networks:
+Rinkeby:
+Collateral Tokan at "0xf44bc010359cc69bfb0004e0b1049474f1536067" which is PrintableToken.sol
+Test Token A at "0xbf1965bbbf6bc75a118de13af9f640f6d4f3304a" which is PrintableToken.sol
+Test Token B at "0x5fdbe5ad6eec00c9c05d8ef96f9eab8391bdf858" which is PrintableToken.sol
+ThreePrint at "0xc30bc8801bd401f76c98eb0f268cf802170f9a14" which is ThreePrint.sol with Collateral, Test Token A, Test Token B
