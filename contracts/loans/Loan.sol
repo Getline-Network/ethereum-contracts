@@ -41,7 +41,7 @@ contract Loan {
     }
 
     function Loan(
-            IAtestor _atestator,
+            //IAtestor _atestator,
             IToken _collateralToken,
             IToken _loanToken,
             address _liege,
@@ -50,7 +50,7 @@ contract Loan {
             uint256 _fundraisingBlocksCount,
             uint256 _paybackBlocksCount
     ) {
-        require(_atestator.isVerified(_liege));
+        //require(_atestator.isVerified(_liege));
         
         ledger = InvestorLedger.openAccount(
             _collateralToken,
