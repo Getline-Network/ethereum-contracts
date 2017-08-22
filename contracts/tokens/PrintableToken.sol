@@ -5,7 +5,7 @@ import "./BasicToken.sol";
 contract PrintableToken is BasicToken {
     event Print(address indexed _who);
 
-    uint256 private printValue;
+    uint256 public printValue;
 
     function PrintableToken(
         string tokenName,

@@ -49,7 +49,7 @@ contract Loan {
             uint16  _interestPermil,
             uint256 _fundraisingBlocksCount,
             uint256 _paybackBlocksCount
-            ) {
+    ) {
         require(_atestator.isVerified(_liege));
         
         ledger = InvestorLedger.openAccount(
@@ -62,6 +62,18 @@ contract Loan {
         
         fundraisingBlocksCount = _fundraisingBlocksCount;
         paybackBlocksCount = _paybackBlocksCount;
+    }
+
+    function collateralToken() constant returns (IToken tokenAddress) {
+        return ledger.collateralToken;
+    }
+
+    function borrowedToken() constant returns (IToken tokenAddress) {
+        return ledger.loanToken;
+    }
+
+    function amountWanted() constant returns (uint256 _amountWanted) {
+        return ledger.amountWanted();
     }
 
     function gatherCollateral() atState(State.CollateralCollection) {

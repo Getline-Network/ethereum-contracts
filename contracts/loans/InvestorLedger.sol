@@ -98,10 +98,6 @@ library InvestorLedger {
         }
 
         delete account.investors[trustee];
-    } 
-
-    function isFullyFunded(Ledger storage account) constant returns (bool fullyFunded) {
-        return account.totalAmountGathered == account.totalLoanNeeded;
     }
 
     function releaseLoanToBorrower(Ledger storage account) {
@@ -110,6 +106,14 @@ library InvestorLedger {
         account.loanWidthdrawn = true;
 
         require(account.loanToken.transfer(account.liege, account.totalAmountGathered));
+    }
+
+    function isFullyFunded(Ledger storage account) constant returns (bool fullyFunded) {
+        return account.totalAmountGathered == account.totalLoanNeeded;
+    }
+
+    function amountWanted(Ledger storage account) constant returns (uint256 _amountWanted) {
+        return account.totalLoanNeeded;
     }
 
     function calculateInterest(Ledger storage account, uint256 investment) private constant returns (uint256 interest) {
