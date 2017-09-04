@@ -1,3 +1,5 @@
+var Bluebird = require('bluebird'); 
+
 var MathContract = artifacts.require("./common/Math.sol");
 var InvestorLedger = artifacts.require("./loans/InvestorLedger.sol");
 var Loan = artifacts.require("./loans/Loan.sol");
@@ -16,12 +18,16 @@ module.exports = function(deployer) {
     .then(() => deployer.deploy(InvestorLedger))
     .then(() => deployer.link(InvestorLedger, Loan))
     .then(() => deployer.deploy(MockAtestor, true))
-    .then(() =>
-      Promise.all([
-        deployer.deploy(PrintableToken, "Getline Test Collateral", 4, "GTC", 1000000),
-        deployer.deploy(PrintableToken, "Getline Test Token A", 4, "GTA", 1000000),
-        deployer.deploy(PrintableToken, "Getline Test Token B", 4, "GTB", 1000000)
-      ]))
+    // when deploying multiples of the same contract using standard deployer.deploy([[],[],[]]) the
+    // returned result was simply [ undefined, undefined, undefined ]
+    .then(() => Bluebird.map(
+      [
+        ["Getline Test Collateral", 4, "GTC", 1000000],
+        ["Getline Test Token A", 4, "GTA", 1000000],
+        ["Getline Test Token B", 4, "GTB", 1000000]
+      ],
+      (params) => PrintableToken.new(...params)
+    ))
     .then((tokens) => {
       collateralToken = tokens[0];
       tokenA = tokens[1];
