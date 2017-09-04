@@ -73,7 +73,23 @@ contract Loan {
     }
 
     function amountWanted() constant returns (uint256 _amountWanted) {
-        return ledger.amountWanted();
+        return ledger.totalLoanNeeded;
+    }
+
+    function borrower() constant returns (address _borrower) {
+        return ledger.liege;
+    }
+
+    function interestPermil() constant returns (uint16 _interestPermil) {
+        return ledger.interestPermil;
+    }
+
+    function isFundraising() constant returns (bool _isFundraising) {
+        return currentState == State.Fundraising;
+    }
+
+    function amountGathered() constant returns (uint256 _totalAmount) {
+        return ledger.totalAmountGathered;
     }
 
     function gatherCollateral() atState(State.CollateralCollection) {
