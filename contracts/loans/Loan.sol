@@ -84,8 +84,16 @@ contract Loan {
         return ledger.interestPermil;
     }
 
-    function isFundraising() constant returns (bool _isFundraising) {
+    function isFundraising() timedTransitions constant returns (bool _isFundraising) {
         return currentState == State.Fundraising;
+    }
+
+    function isPaidback() timedTransitions constant returns (bool _isPaidback) {
+        return currentState == State.Finished && !ledger.loanDefaulted;
+    }
+
+    function isDefaulted() timedTransitions constant returns (bool _isDefaulted) {
+        return currentState == State.Finished && ledger.loanDefaulted;
     }
 
     function amountGathered() constant returns (uint256 _totalAmount) {

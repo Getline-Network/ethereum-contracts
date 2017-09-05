@@ -11,19 +11,19 @@ var DEMO_TOKENS = [
 ];
 
 module.exports = function(deployer) {
-  var tokenInstances = null;
+  var tokenAddresses = null;
   return deployer
     .then(() =>
-      Bluebird.map(
+      Bluebird.mapSeries(
         DEMO_TOKENS,
         (params) => PrintableToken.new(...params)
       )
     )
-    .then((tokens) => tokenInstances = tokens)
+    .then((tokens) => tokenAddresses = tokens.map((token) => token.address))
     .then(() => PrintableCollection.new())
-    .then((instance) => Bluebird.each(
-      tokenInstances,
-      (token) => instance.addToken(token.address))
-    );
-    //.then(() => deployer.deploy(AutoInvestor, ...DEMO_TOKENS));
+    .then((instance) => Bluebird.mapSeries(
+      tokenAddresses,
+      (token) => instance.addToken(token))
+    )
+    .then(() => deployer.deploy(AutoInvestor, ...tokenAddresses));
 };
