@@ -13,6 +13,7 @@ var DEMO_TOKENS = [
 module.exports = function(deployer) {
   var tokenAddresses = null;
   return deployer
+    .then(() => deployer.logger.log('Deploying tokens'))
     .then(() =>
       Bluebird.mapSeries(
         DEMO_TOKENS,
@@ -20,10 +21,14 @@ module.exports = function(deployer) {
       )
     )
     .then((tokens) => tokenAddresses = tokens.map((token) => token.address))
-    .then(() => PrintableCollection.new())
+    .then(() => deployer.logger.log("Tokens deployed"))
+    .then(() => deployer.deploy(PrintableCollection))
+    .then(() => deployer.logger.log('Adding tokens for minting'))
+    .then(PrintableCollection.deployed)
     .then((instance) => Bluebird.mapSeries(
       tokenAddresses,
       (token) => instance.addToken(token))
     )
+    .then(() => deployer.logger.log('Tokens added to minting'))
     .then(() => deployer.deploy(AutoInvestor, ...tokenAddresses));
 };
