@@ -1,0 +1,33 @@
+Running migration: 1_initial_migration.js
+  Deploying Migrations...
+  ... 0x47017c98678c1950408195c974945ec5bc352b0f0f82a4d3fd9509affd7f1a3f
+  Migrations: 0xab894e368d0bfe27d525af1b8b9eb70c567b8a3f
+Saving successful migration to network...
+  ... 0x2668b07bdbe2c6276009e654c669bd0a4a250a53a12e0d3b18acedf7a2b5ae71
+Running migration: 2_basic_contracts.js
+  Deploying Math...
+  ... 0x5e82ec466ae14d56b886cddfbf3fe1b04f4d46c75942dd2a600e1f91ace8b754
+  Math: 0x251b1db51005c0edcc10120c2e79c9d667ad095c
+  Linking Math to InvestorLedger
+  Deploying InvestorLedger...
+  ... 0xfcdb43562f9eb6722f2368ccf2d47b152bb35c2aff747784ff61273e190c5ec7
+  InvestorLedger: 0xbf1965bbbf6bc75a118de13af9f640f6d4f3304a
+  Linking InvestorLedger to Loan
+Saving successful migration to network...
+  ... 0xca75ed1ba380d809642e2ed268d3a761aaeb923d740adae699968df3edb1782b
+Saving artifacts...
+Running migration: 3_demo.js
+  Running step...
+  ... 0xf009993286872ca421dd20fde5423b5c194f91e5633e77a41d73697bf101e125
+  ... 0xdb813202442dd4300b1825bf67737b09108b2535d1e9901b4dbf1b5668664ac8
+  ... 0x6bc459fa61b17513c45da17a15a4626f33a1e84d676432955ea3ad676c12d642
+  ... 0x16702aae958621c02e91ff6171ac5111e4c13962b3cbb9dc4a490d8150bf86a4
+  ... 0x3745fa0e9c5978a5dc87f58b6c449aef1e024767b4d51db0e028d5d9ef4826b8
+  ... 0xf9b04af3a82c73fee12ba613b42f927444888aace1a96e769bdbed4f95ac07f9
+  ... 0x587ff1f705d6a227acfcc4906b5ec27fe01138b89b4c11d3f8706d8aa86d4f92
+  Deploying AutoInvestor...
+  ... 0x23a2f2548afeb36cc8325be09ca13417092db3002eb18cc932a333dc52676ea4
+  AutoInvestor: 0x33f96e1c74f73c125dcb643be52cd2728e32216d
+Saving successful migration to network...
+  ... 0xf9dfaef87708769bf8c987f8a76fe33a4e98266733ccb7666d0f0e4f41097a78
+Saving artifacts...
