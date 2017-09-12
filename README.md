@@ -2,6 +2,7 @@
 ```
 npm install -g truffle
 npm install -g testrpc
+npm install
 testrpc
 truffle deploy
 ```
