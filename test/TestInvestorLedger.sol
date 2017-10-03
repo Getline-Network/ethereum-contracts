@@ -9,24 +9,18 @@ import "../contracts/tokens/PrintableToken.sol";
 contract TestInvestorLedger {
     uint256 totalLoanNeeded = 100;
     uint16 interestPermil = 200;
-    uint256 empty = 0;
     uint256 printValue = 100;
-    PrintableToken collateralToken = createMockToken("collateralToken");
-    PrintableToken loanToken = createMockToken("loanToken");
+    PrintableToken collateralToken = new PrintableToken("collateralToken", 0, "token_symbol", printValue);
+    PrintableToken loanToken = new PrintableToken("loanToken", 0, "token_symbol", printValue);
     TestPerson investor = new TestPerson(loanToken, collateralToken);
     TestPerson borrower = new TestPerson(loanToken, collateralToken);
     InvestorLedger.Ledger testLedger = InvestorLedger.openAccount(
         collateralToken, loanToken, address(borrower), totalLoanNeeded, interestPermil);
 
-    function createMockToken(string memory tokenName)  returns (PrintableToken) {
-        uint256 decimalPoints = 0;
-        string memory tokenSymbol = tokenName;
-        return new PrintableToken(tokenName, decimalPoints, tokenSymbol, printValue);
-    }
     function testInvestorLedger() {
         testLedger.loanToken = loanToken;
         testLedger.collateralToken = collateralToken;
-        Assert.equal(testLedger.totalAmountGathered, empty, "It should be initialy empty");
+        Assert.equal(testLedger.totalAmountGathered, 0, "It should be initialy empty");
         bool isFullyFunded = InvestorLedger.isFullyFunded(testLedger);
         Assert.equal(isFullyFunded, false, "Ledger should not be fully funded");
         Assert.equal(testLedger.totalLoanNeeded, totalLoanNeeded, "Ledger be initialized with load needed");
@@ -36,12 +30,12 @@ contract TestInvestorLedger {
         Assert.equal(collateralToken.balanceOf(borrower), printValue, "It should print some tokens");
 
         InvestorLedger.gatherCollateral(testLedger);
-        Assert.equal(collateralToken.balanceOf(borrower), empty, "It should transfer tokens");
+        Assert.equal(collateralToken.balanceOf(borrower), 0, "It should transfer tokens");
         Assert.equal(testLedger.totalCollateral, printValue, "It should add collateral tokens");
     }
     function testGatherInvestment() {
         InvestorLedger.gatherInvestment(testLedger, address(investor));
-        Assert.equal(testLedger.totalAmountGathered, empty, "Empty when investor has no loan tokens");
+        Assert.equal(testLedger.totalAmountGathered, 0, "Empty when investor has no loan tokens");
 
         investor.printMeLoanTokens();
         InvestorLedger.gatherInvestment(testLedger, address(investor));
